@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<security:http pattern="/include/**" security="none" />
+	<security:http auto-config="true" use-expressions="true"
+		create-session="never">
+		<!-- 관리자영역 설정 -->
+		<security:intercept-url pattern="/admin/**"
+			access="hasRole('ROLE_ADMIN')" />
+		<security:csrf disabled="true" />
+		<!-- 권한이 없음 누구나 접근 가능 -->
+		<security:intercept-url pattern="/user/**"
+			access="permitAll" />
+		<!-- 로그인한 사용자 영역 -->
+		<security:intercept-url pattern="/**"
+			access="hasAnyRole('ROLE_USER','ROLE_TEST','ROLE_ADMIN','ROLE_GUEST')" />
+			
+		<!-- 로그인폼 -->
+		<security:form-login login-page="/user/login"
+			login-processing-url="/users/check"
+			authentication-success-handler-ref="loginSuccessHandler"
+			authentication-failure-handler-ref="loginFailureHandler"
+			username-parameter="username"
+			password-parameter="password" />
+			
+		<security:logout logout-url="/logout"
+						delete-cookies="JSESSIONID,SPRING_SECURITY_REMEMBER_ME_COOKIE"
+						invalidate-session="true"
+						logout-success-url="/login?status=logout" />
+			
+		<security:access-denied-handler ref="userDeniedHandler"/>
+		
+		<!-- 자동로그인 쿠키 Remember me 86400 1일 604800 7일-->
+		<security:remember-me key="userKey"
+		token-validity-seconds="86400"/>
+		
+			
+		<security:session-management
+			invalid-session-url="/login">
+			<security:concurrency-control
+				max-sessions="1"
+				expired-url="/users/loginForm"
+				error-if-maximum-exceeded="true" />
+		</security:session-management>
+		
+		
+	</security:http> <!-- secured method -->
+	<security:global-method-security
+		secured-annotations="enabled" />
+
+	<!-- provider -->
+	<!-- <security:authentication-manager> <security:authentication-provider 
+		ref="userAuthHelper" /> </security:authentication-manager> -->
+	<security:authentication-manager>
+		<security:authentication-provider
+			ref="userAuthProvider" />
+		<security:authentication-provider
+			user-service-ref="userAuthService">
+			<security:password-encoder ref="passwordEncoder">
+			</security:password-encoder>
+		</security:authentication-provider>
+	</security:authentication-manager>
+
+	<bean id="loginSuccessHandler"
+		class="org.spring.chat.security.LoginSuccessHandler">
+		<!-- <property name="defaultTargetUrl" value="/main" />
+		<property name="alwaysUseDefaultTargetUrl" value="true" /> -->
+	</bean>
+	<bean id="loginFailureHandler"
+		class="org.spring.chat.security.LoginFailureHandler">
+		<!-- <property name="defaultFailureUrl" value="/login?status=fail" /> -->
+	</bean>
+	<bean id="userDeniedHandler"
+		class="org.spring.chat.security.UserDeniedHandler">
+	</bean>
+	<!-- //밑에놈이 성공했냐 안 했냐에 따라서 success, failier 핸들러로 감 -->
+	<bean id="userAuthService"
+		class="org.spring.chat.security.UserAuthService" />
+		
+	<bean id="passwordEncoder"
+		class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder" />
+		
+	<bean id="userAuthProvider"
+		class="org.spring.chat.security.UserAuthProvider">
+		<property name="userDetailsService" ref="userAuthService" />
+		<property name="passwordEncoder" ref="passwordEncoder" />
+	</bean>
+
+
+</beans>

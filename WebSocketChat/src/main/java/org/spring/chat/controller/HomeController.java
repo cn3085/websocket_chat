@@ -1,4 +1,4 @@
-package org.spring.chat;
+package org.spring.chat.controller;
 
 import java.text.DateFormat;
 import java.util.Date;

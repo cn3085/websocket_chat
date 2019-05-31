@@ -1,13 +1,20 @@
 package org.spring.chat.controller;
 
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 
 import org.spring.chat.model.UserVO;
 import org.spring.chat.service.UserService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +56,20 @@ public class UserController {
 //	}
 	
 	@GetMapping("/join")
-	public String joinUser() {
+	public String joinUser(HttpServletRequest req) {
+		HttpSession session = req.getSession();
+		SecurityContext value = (SecurityContext) session.getAttribute("SPRING_SECURITY_CONTEXT");
+
+		Authentication authentication = value.getAuthentication();
+
+		User principal = (User) authentication.getPrincipal();
+
+		WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+
+		String username = authentication.getName();
+
+		System.out.println("username------------");
+		System.out.println(username);
 		return "users/joinForm";
 	}
 	

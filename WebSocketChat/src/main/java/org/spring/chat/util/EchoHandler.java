@@ -2,8 +2,13 @@ package org.spring.chat.util;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.spring.chat.model.MessageVO;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.web.socket.CloseStatus;
 import org.springframework.web.socket.TextMessage;
 import org.springframework.web.socket.WebSocketSession;
@@ -33,9 +38,20 @@ public class EchoHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         connectedUsers.add(session);
- 
         log.info(session.getId() + "님이 접속했습니다.");
         log.info("연결 IP : " + session.getRemoteAddress().getHostName());
+        Map<String, Object> map = session.getAttributes();
+        SecurityContext value = (SecurityContext)map.get("SPRING_SECURITY_CONTEXT");
+        Authentication authentication = value.getAuthentication();
+
+		User principal = (User) authentication.getPrincipal();
+
+		WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+
+		String username = authentication.getName();
+
+		System.out.println("username--------SOCKET----");
+		System.out.println(username);
     }
  
     /**

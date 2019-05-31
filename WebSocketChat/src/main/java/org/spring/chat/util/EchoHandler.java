@@ -1,8 +1,11 @@
 package org.spring.chat.util;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.spring.chat.model.MessageVO;
 import org.springframework.security.core.Authentication;
@@ -22,10 +25,10 @@ public class EchoHandler extends TextWebSocketHandler {
     /**
      * 서버에 연결한 사용자들을 저장하는 리스트
      */
-    private List<WebSocketSession> connectedUsers;
+    private Map<String, WebSocketSession> connectedUsers;
  
     public EchoHandler() {
-        connectedUsers = new ArrayList<WebSocketSession>();
+        connectedUsers = Collections.synchronizedMap(new Hashtable<String, WebSocketSession>());
         log.info("EchoHandler가 호출 되었다!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
     }
  
@@ -35,20 +38,29 @@ public class EchoHandler extends TextWebSocketHandler {
      * @param WebSocketSession
      *            접속한 사용자
      */
+    
+    public String getUserName(WebSocketSession session) {
+    	String userName= null;
+    	Map<String, Object> map = session.getAttributes();
+    	SecurityContext value = (SecurityContext)map.get("SPRING_SECURITY_CONTEXT");
+    	Authentication authentication = value.getAuthentication();
+    	User principal = (User) authentication.getPrincipal();
+    	WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
+    	userName = authentication.getName();
+    	
+    	return userName;
+    }
+    
+    
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
-        connectedUsers.add(session);
-        log.info(session.getId() + "님이 접속했습니다.");
+    	
+    	String username = this.getUserName(session);
+    	
+    	connectedUsers.put(username, session);
+        log.info(username + " 님이 접속했습니다.");
         log.info("연결 IP : " + session.getRemoteAddress().getHostName());
-        Map<String, Object> map = session.getAttributes();
-        SecurityContext value = (SecurityContext)map.get("SPRING_SECURITY_CONTEXT");
-        Authentication authentication = value.getAuthentication();
-
-		User principal = (User) authentication.getPrincipal();
-
-		WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
-
-		String username = authentication.getName();
+        
 
 		System.out.println("username--------SOCKET----");
 		System.out.println(username);
@@ -75,29 +87,51 @@ public class EchoHandler extends TextWebSocketHandler {
         log.info("messgeVO : "+messageVO);
         log.info(connectedUsers.toString());
         String hostName = "";
- 
-        for (WebSocketSession webSocketSession : connectedUsers) {
+        String userName = "";
+        
+        for(Entry<String, WebSocketSession> user : connectedUsers.entrySet()) {
+        	userName = this.getUserName(session);
         	//type이 all이면
-            if (messageVO.getType().equals("all")) {
-            	//type이 all일 때 내가 아닌 사람에게만 보낸다
-                if (!session.getId().equals(webSocketSession.getId())) {
-                    webSocketSession.sendMessage(
-                            new TextMessage(session.getRemoteAddress().getHostName() + " ▶ " + messageVO.getMessage()));
-                }
-            //type이 all이 아니면(지정한 to가 있으면)
-            } else {
-                hostName = webSocketSession.getRemoteAddress().getHostName();
-                //hostName을 가져와서 해당 host에게 보낸다
-                if (messageVO.getTo().equals(hostName)) {
-                    webSocketSession.sendMessage(
-                            new TextMessage(
-                                    "<span style='color:red; font-weight: bold;' >"
-                                    + session.getRemoteAddress().getHostName() + "▶ " + messageVO.getMessage()
-                                    + "</span>") );
-                    break;
-                }
-            }
+        	if(messageVO.getType().equals("all")) {
+        		//내가 아닌 사람에게만 보낸다
+        		if(!user.getKey().equals(userName)) {
+        			user.getValue().sendMessage(new TextMessage(userName+ " ▶ " + messageVO.getMessage()));
+        		}
+        	//type이 all이 아니면(지정한 to가 있으면)
+        	}else {
+        		hostName = user.getKey();
+        		if(messageVO.getTo().equals(hostName)) {
+        			user.getValue().sendMessage(
+                          new TextMessage(
+                          "<span style='color:red; font-weight: bold;' >"
+                          + hostName + "▶ " + messageVO.getMessage()
+                          + "</span>") );
+          break;
+        		}
+        	}
         }
+//        for (WebSocketSession webSocketSession : connectedUsers.values()) {
+//        	//type이 all이면
+//            if (messageVO.getType().equals("all")) {
+//            	//type이 all일 때 내가 아닌 사람에게만 보낸다
+//                if (!session.getId().equals(webSocketSession.getId())) {
+//                    webSocketSession.sendMessage(
+//                            new TextMessage(this.getUserName(session) + " ▶ " + messageVO.getMessage()));
+//                }
+//            //type이 all이 아니면(지정한 to가 있으면)
+//            } else {
+//                //hostName = webSocketSession.getRemoteAddress().getHostName();
+//                //hostName을 가져와서 해당 host에게 보낸다
+//                if (messageVO.getTo().equals(hostName)) {
+//                    webSocketSession.sendMessage(
+//                            new TextMessage(
+//                                    "<span style='color:red; font-weight: bold;' >"
+//                                    + session.getRemoteAddress().getHostName() + "▶ " + messageVO.getMessage()
+//                                    + "</span>") );
+//                    break;
+//                }
+//            }
+//        }
  
         /*
          * Payload : 사용자가 보낸 메시지
@@ -118,7 +152,7 @@ public class EchoHandler extends TextWebSocketHandler {
  
         connectedUsers.remove(session);
  
-        for (WebSocketSession webSocketSession : connectedUsers) {
+        for (WebSocketSession webSocketSession : connectedUsers.values()) {
             /*
              * 자신이 보낸 메시지를 받지 않는다.
              */

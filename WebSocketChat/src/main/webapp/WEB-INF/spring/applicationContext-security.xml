@@ -21,7 +21,7 @@
 			
 		<!-- 로그인폼 -->
 		<security:form-login login-page="/user/login"
-			login-processing-url="/users/check"
+			login-processing-url="/user/check"
 			authentication-success-handler-ref="loginSuccessHandler"
 			authentication-failure-handler-ref="loginFailureHandler"
 			username-parameter="username"

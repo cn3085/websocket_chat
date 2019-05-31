@@ -8,19 +8,16 @@
 <%@ include file="../include/header.jsp" %>
 </head>
 <body>
-	<script >
-		function join(){
-			location.href="${path}/user/join";
-		}
-	</script>
-	<h2>로그인 페이지</h2>
+	<h2>회원가입</h2>
 	<span style="color:red;">${errMsg}</span>
-	<form action="${path}/user/check" method="post">
+	<form action="/user/joinAction" method="post">
 		<input type="text" name="username">
 		<input type="text" name="password">
-		<input type="checkbox" name="_spring_security_remember_me">
+		<select name="authority">
+			<option value="ROLE_USER">사용자</option>
+			<option value="ROLE_ADMIN">관리자</option>
+		</select>
 		<input type="submit">
-		<input type="button" value="회원가입" onclick="join()">
 	</form>
 </body>
 </html>

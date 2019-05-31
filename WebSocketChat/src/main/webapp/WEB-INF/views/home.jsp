@@ -9,8 +9,11 @@
 <h1>
 	Hello world!  
 </h1>
+<h2>${msg}</h2>
 
 <a href="/user/login">로그인하기</a>
 <a href="/echo">채팅방 입장하기</a>
+<a href="/admin/adminhome">관리자 페이지</a>
+<a href="/logout">로그아웃</a>
 </body>
 </html>

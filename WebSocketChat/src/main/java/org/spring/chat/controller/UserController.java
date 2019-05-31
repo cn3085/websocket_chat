@@ -35,15 +35,39 @@ public class UserController {
 	@GetMapping("/login")
 	public String loginForm() {
 		System.out.println("로그인 폼으로 보낸다");
-		return "/users/loginForm";
+		return "users/loginForm";
 	}
 	
-	@PostMapping("/check")
-	public void checkUser(String username) {
-		System.out.println("UserController의 checker가 실행됩니다");
-		Object result = userService.selectUser(username);
-		
-		System.out.println("결과는 : " + result);
+//	@RequestMapping("/check")
+//	//UserDetailService를 구현한 클래스가 실행됨
+//	public String checkUser(String username) {
+//		System.out.println("UserController의 checker가 실행됩니다");
+//		Object result = userService.selectUser(username);
+//		
+//		System.out.println("결과는 : " + result);
+//		return "home";
+//	}
+	
+	@GetMapping("/join")
+	public String joinUser() {
+		return "users/joinForm";
 	}
 	
+	@PostMapping("/joinAction")
+	public String joinUser(String username, String password, String authority) {
+		System.out.println(username + password + authority);
+		String dbpw = encoder.encode(password);
+		Map<String, String> map = new HashMap<>();
+		map.put("username", username);
+		map.put("password", dbpw);
+		map.put("authority", authority);
+		int result = userService.insertUser(map);
+		return "users/loginForm";
+	}
+	
+//	@RequestMapping("/admin")
+//	public String adminPage() {
+//		System.out.println("당신은 관리자군요");
+//		return "admin/main";
+//	}
 }

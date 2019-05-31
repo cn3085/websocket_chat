@@ -17,7 +17,9 @@ public class LoginFailureHandler implements AuthenticationFailureHandler {
 			AuthenticationException exception) throws IOException, ServletException {
 		// TODO Auto-generated method stub
 		request.setAttribute("errMsg", "아이디 또는 비밀번호가 일치하지 않습니다.");
-		String url = "/WEB-INF/views/user/loginForm.jsp";
+		System.out.println("로그인 실패 ㅠㅠㅠㅠㅠㅠㅠㅠ");
+
+		String url = "/WEB-INF/views/users/loginForm.jsp";
 		request.getRequestDispatcher(url).forward(request, response);
 	}
 

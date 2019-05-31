@@ -7,17 +7,17 @@
 	namespace="org.spring.chat.mapper.UserMapper">
 	<!-- 회원 가입 -->
 	<insert id="insertUser"
-		parameterType="org.spring.chat.model.UserVO">
+		parameterType="java.util.Map">
 			insert into chat.user
-			(username, password)
+			(username, password, authority)
 			values
-			(#{userId},#{password})
+			(#{username},#{password}, #{authority})
 	</insert>
 	
 	<!-- 로그인 -->
 	<select id="selectUser"
 		parameterType="String"
 		resultType="java.util.Map">
-			select username, password from chat.user where username = #{userId} 
+			select username, password, authority from chat.user where username = #{userId} 
 	</select>
 </mapper>

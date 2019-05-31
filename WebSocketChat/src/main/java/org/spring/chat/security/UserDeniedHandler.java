@@ -16,7 +16,7 @@ public class UserDeniedHandler implements AccessDeniedHandler {
 			AccessDeniedException accessDeniedException) throws IOException, ServletException {
 		
 		request.setAttribute("errMsg", "관리자만 사용할 수 잇는 기능입니다.");
-		String url = "/WEB-INF/views/user/denied.jsp";
+		String url = "/WEB-INF/views/users/denied.jsp";
 		request.getRequestDispatcher(url).forward(request, response);
 		
 		

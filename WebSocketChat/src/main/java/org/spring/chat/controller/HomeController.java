@@ -22,7 +22,7 @@ public class HomeController {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "/")
 	public String home(Locale locale, Model model) {
 		log.info(System.currentTimeMillis());
 		Date date = new Date();
@@ -31,7 +31,7 @@ public class HomeController {
 		String formattedDate = dateFormat.format(date);
 		
 		model.addAttribute("serverTime", formattedDate );
-		
+		System.out.println("험~~~~~~~~~~");
 		return "home";
 	}
 	

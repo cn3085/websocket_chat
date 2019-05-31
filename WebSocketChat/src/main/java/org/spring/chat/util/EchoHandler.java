@@ -110,28 +110,6 @@ public class EchoHandler extends TextWebSocketHandler {
         		}
         	}
         }
-//        for (WebSocketSession webSocketSession : connectedUsers.values()) {
-//        	//type이 all이면
-//            if (messageVO.getType().equals("all")) {
-//            	//type이 all일 때 내가 아닌 사람에게만 보낸다
-//                if (!session.getId().equals(webSocketSession.getId())) {
-//                    webSocketSession.sendMessage(
-//                            new TextMessage(this.getUserName(session) + " ▶ " + messageVO.getMessage()));
-//                }
-//            //type이 all이 아니면(지정한 to가 있으면)
-//            } else {
-//                //hostName = webSocketSession.getRemoteAddress().getHostName();
-//                //hostName을 가져와서 해당 host에게 보낸다
-//                if (messageVO.getTo().equals(hostName)) {
-//                    webSocketSession.sendMessage(
-//                            new TextMessage(
-//                                    "<span style='color:red; font-weight: bold;' >"
-//                                    + session.getRemoteAddress().getHostName() + "▶ " + messageVO.getMessage()
-//                                    + "</span>") );
-//                    break;
-//                }
-//            }
-//        }
  
         /*
          * Payload : 사용자가 보낸 메시지
